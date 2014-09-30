@@ -1101,8 +1101,8 @@ module.exports = exports = nano = function database_module(cfg) {
         callback = params;
         params   = {};
       }
-      headers = {}
-      if(params.headers){
+      headers = {};
+      if(params.headers != undefined){
         headers = params.headers;
         delete params.headers
       }
