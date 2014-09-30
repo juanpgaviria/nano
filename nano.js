@@ -396,52 +396,6 @@ module.exports = exports = nano = function database_module(cfg) {
   }
 
  /***************************************************************************
-  * updates                                                                 *
-  ***************************************************************************/
-  /*
-   * gets the db updates
-   *
-   * e.g. nano.updates({feed: 'continuous', timeout: 10000}, function (e,r,h) {
-   *        console.log(r);
-   *      });
-   *
-   *
-   * @param {params:object:optional} options to the db updates feed
-   *
-   * @see relax
-   */
-  function updates(params, callback) {
-    if(typeof params === 'function') {
-      callback  = params;
-      params    = {};
-    }
-    return relax(
-      { method       : 'GET'
-      , db           : '_db_updates'
-      , params       : params
-      }, callback);
-  }
-
-  /*
-   * couchdb db updates follow support
-   *
-   * e.g. var feed = nano.follow();
-   *      feed.on('change', function (change) { console.log(change); });
-   *      feed.follow();
-   *
-   * @param {params:object:optional} additions to the querystring
-   *   check the follow documentation for the full api
-   *   https://github.com/iriscouch/follow
-   *
-   *
-   * @see relax
-   */
-  function follow_updates(params, callback) {
-    return follow_db('_db_updates', params, callback);
-  }
-
-
- /***************************************************************************
   * db                                                                      *
   ***************************************************************************/
  /*
@@ -845,7 +799,7 @@ module.exports = exports = nano = function database_module(cfg) {
         { db: db_name, path: '_all_docs', method: 'POST'
         , params: params, body: doc_names }, callback);
     }
-    
+
    /*
     * calls a view
     *
@@ -1008,18 +962,19 @@ module.exports = exports = nano = function database_module(cfg) {
       var doc_name = params.doc_name;
       delete params.doc_name;
 
-      doc = _.extend({ _attachments: {} }, doc);
-      attachments.forEach(function(att) {
-        doc._attachments[att.name] = {
+      var stubs = attachments.reduce(function(memo, att) {
+        memo[att.name] = {
           follows: true,
           length: att.data.length,
           content_type: att.content_type
         };
-      });
+
+        return memo;
+      }, {});
       var multipart = [
         {
           'content-type': 'application/json',
-          body: JSON.stringify(doc)
+          body: JSON.stringify(_.extend({}, doc, { _attachments: stubs }))
         }
       ];
       attachments.forEach(function(att) {
@@ -1096,15 +1051,14 @@ module.exports = exports = nano = function database_module(cfg) {
     *
     * @see relax
     */
-    function get_att(doc_name,att_name,params,callback) {
-      if(typeof params === 'function') {
-        callback = params;
-        params   = {};
-      }
-      headers = {};
-      if(params.headers != undefined){
-        headers = params.headers;
-        delete params.headers
+    function get_att(doc_name,att_name,params,headers, callback) {
+      // if(typeof params === 'function') {
+      //   callback = params;
+      //   params   = {};
+      // }
+      if(typeof headers === 'function') {
+        callback = headers;
+        headers   = {};
       }
       return relax({ db: db_name, att: att_name, method: 'GET', doc: doc_name
                    , params: params, headers: headers, encoding: null, dont_parse: true},callback);
@@ -1214,27 +1168,25 @@ module.exports = exports = nano = function database_module(cfg) {
 
   // server level exports
   public_functions =
-    { db             :
-      { create       : create_db
-      , get          : get_db
-      , destroy      : destroy_db
-      , list         : list_dbs
-      , use          : document_module   // alias
-      , scope        : document_module   // alias
-      , compact      : compact_db
-      , replicate    : replicate_db
-      , changes      : changes_db
-      , follow       : follow_db
+    { db          :
+      { create    : create_db
+      , get       : get_db
+      , destroy   : destroy_db
+      , list      : list_dbs
+      , use       : document_module   // alias
+      , scope     : document_module   // alias
+      , compact   : compact_db
+      , replicate : replicate_db
+      , changes   : changes_db
+      , follow    : follow_db
       }
-    , use            : document_module
-    , scope          : document_module   // alias
-    , request        : relax
-    , relax          : relax             // alias
-    , dinosaur       : relax             // alias
-    , auth           : auth_server
-    , session        : session
-    , updates        : updates
-    , follow_updates : follow_updates
+    , use         : document_module
+    , scope       : document_module        // alias
+    , request     : relax
+    , relax       : relax                  // alias
+    , dinosaur    : relax                  // alias
+    , auth        : auth_server
+    , session     : session
     };
 
   // clone if cfg object
@@ -1289,7 +1241,7 @@ module.exports = exports = nano = function database_module(cfg) {
 
     auth    = path.auth ? path.auth + '@' : '';
     port    = path.port ? ':' + path.port : '';
-    db      = cfg.db ? cfg.db : decodeURIComponent(path_array[0]);
+    db      = cfg.db ? cfg.db : path_array[0];
 
     var format = {
       protocol: path.protocol,

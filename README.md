@@ -1,5 +1,5 @@
 # nano
-[![Gitter chat](http://img.shields.io/badge/gitter-dscape%2Fnano-1dce73.svg?style=flat)](https://gitter.im/dscape/nano)[![Build Status](http://img.shields.io/travis/dscape/nano.svg?style=flat)](https://travis-ci.org/dscape/nano)![NPM Downloads](http://img.shields.io/npm/dm/nano.svg?style=flat)![NPM Version](http://img.shields.io/npm/v/nano.svg?style=flat)
+[![Build Status](https://travis-ci.org/dscape/nano.png)](https://travis-ci.org/dscape/nano) [![Gitter chat](https://badges.gitter.im/dscape/nano.png)](https://gitter.im/dscape/nano)
 
 minimalistic couchdb driver for node.js
 
@@ -20,7 +20,7 @@ minimalistic couchdb driver for node.js
 ## table of contents
 
 - [getting started](#getting-started)
-- [tutorials & screencasts](#tutorials-examples-in-the-wild--screencasts)
+- [tutorials & screencasts](#tutorials--screencasts)
 - [configuration](#configuration)
 - [database functions](#database-functions)
 	- [nano.db.create(name, [callback])](#nanodbcreatename-callback)
@@ -34,8 +34,6 @@ minimalistic couchdb driver for node.js
 	- [nano.use(name)](#nanousename)
 	- [nano.request(opts, [callback])](#nanorequestopts-callback)
 	- [nano.config](#nanoconfig)
-	- [nano.updates([params], [callback])](#nanoupdatesparams-callback)
-	- [nano.follow_updates([params], [callback])](#nanofollow_updatesparams-callback)
 - [document functions](#document-functions)
 	- [db.insert(doc, [params], [callback])](#dbinsertdoc-params-callback)
 	- [db.destroy(docname, rev, [callback])](#dbdestroydocname-rev-callback)
@@ -349,36 +347,6 @@ an object containing the nano configurations, possible keys are:
 
 * `url` - the couchdb url
 * `db` - the database name
-
-
-### nano.updates([params], [callback])
-
-listen to db updates, the available `params` are:
-  
-* `params.feed` – Type of feed. Can be one of
- * `longpoll`: Closes the connection after the first event.
- * `continuous`: Send a line of JSON per event. Keeps the socket open until timeout.
- * `eventsource`: Like, continuous, but sends the events in EventSource format.
-* `params.timeout` – Number of seconds until CouchDB closes the connection. Default is 60.
-* `params.heartbeat` – Whether CouchDB will send a newline character (\n) on timeout. Default is true.
-
-
-### nano.follow_updates([params], [callback])
-
-uses [follow](https://github.com/iriscouch/follow) to create a solid
-[`_db_updates`](http://docs.couchdb.org/en/latest/api/server/common.html?highlight=db_updates#get--_db_updates) feed.
-please consult follow documentation for more information as this is a very complete api on it's own
-
-```js
-var feed = nano.follow_updates({since: "now"});
-feed.on('change', function (change) {
-  console.log("change: ", change);
-});
-feed.follow();
-process.nextTick(function () {
-  nano.db.create('alice');
-});
-```
 
 ## document functions
 
@@ -767,7 +735,7 @@ alice.attachment.get('rabbit', 'picture.png').pipe(fs.createWriteStream('/tmp/ra
 then open `/tmp/rabbit.png` and you will see the rabbit picture.
 
 
-## tutorials, examples in the wild & screencasts
+## tutorials & screencasts
 
 * article: [nano - a minimalistic couchdb client for nodejs](http://writings.nunojob.com/2011/08/nano-minimalistic-couchdb-client-for-nodejs.html)
 * article: [getting started with node.js and couchdb](http://writings.nunojob.com/2011/09/getting-started-with-nodejs-and-couchdb.html)
@@ -777,7 +745,6 @@ then open `/tmp/rabbit.png` and you will see the rabbit picture.
 * article: [adding copy to nano](http://blog.jlank.com/2012/07/04/adding-copy-to-nano/)
 * article: [how to update a document with nano](http://writings.nunojob.com/2012/07/How-To-Update-A-Document-With-Nano-The-CouchDB-Client-for-Node.js.html)
 * article: [thoughts on development using couchdb with node.js](http://tbranyen.com/post/thoughts-on-development-using-couchdb-with-nodejs)
-* example in the wild: [nanoblog](https://github.com/grabbeh/nanoblog)
 
 ## roadmap
 
