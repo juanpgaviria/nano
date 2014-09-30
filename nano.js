@@ -1101,8 +1101,13 @@ module.exports = exports = nano = function database_module(cfg) {
         callback = params;
         params   = {};
       }
+      headers = {}
+      if(params.headers){
+        headers = params.headers;
+        delete params.headers
+      }
       return relax({ db: db_name, att: att_name, method: 'GET', doc: doc_name
-                   , params: params, encoding: null, dont_parse: true},callback);
+                   , params: params, headers: headers, encoding: null, dont_parse: true},callback);
     }
 
    /*
